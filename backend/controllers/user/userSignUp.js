@@ -1,4 +1,4 @@
-const userModel = require("../models/userModel");
+const userModel = require("../../models/userModel");
 const bcrypt = require('bcryptjs');
 
 async function userSignUpController(req, res) {
@@ -46,6 +46,14 @@ async function userSignUpController(req, res) {
         // Hash the password
         const salt = bcrypt.genSaltSync(10);
         const hashPassword = bcrypt.hashSync(password, salt);
+
+
+        const payload ={
+            ...req.body,
+            role : "GENERAL",
+            password: hashPassword
+        
+        }
 
         // Create user payload
         const userData = new userModel({

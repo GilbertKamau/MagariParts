@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import loginIcons from '../Assets/signin.gif';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import SummaryApi from '../common';
+import { toast } from 'react-toastify';
+import Context from '../context';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -10,21 +13,45 @@ const Login = () => {
         password: ''
     });
 
-    const handleonChange = (e) => {
+    const navigate = useNavigate();
+    const fetchUserDetails = useContext(Context);
+   
+
+    const handleOnChange = (e) => {
         const { name, value } = e.target;
-
-        setData((prev) => {
-            return {
-                ...prev,
-                [name]: value
-            };
-        });
+        setData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('data login', data);
+
+        const dataResponse = await fetch(SummaryApi.signIn.url, {
+            method: SummaryApi.signIn.method,
+            credentials : "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        });
+
+        const dataApi = await dataResponse.json();
+
+        if (dataApi.success) {
+            toast.success(dataApi.message);
+            navigate('/')
+            fetchUserDetails()
+
+        }
+
+        if (dataApi.error) {
+            toast.error(dataApi.message);
+        }
     };
+
+    console.log('data login', data);
 
     return (
         <section id='login'>
@@ -32,11 +59,13 @@ const Login = () => {
                 <div className='bg-white p-2 py-5 w-full max-w-sm mx-auto'>
                     <div className='w-20 h-20 mx-auto relative overflow-hidden rounded-full'>
                         <div>
-                            <img src={loginIcons} alt='loginicons' />
+                            <img src={loginIcons} alt='login icons' />
                         </div>
-                        <form> <div className='text-xs bg-opacity-75 bg-slate-200 p-1 py-1 text-center absolute bottom-0 width-full'>
-                            Upload photo
-                        </div></form>
+                        <form>
+                            <div className='text-xs bg-opacity-75 bg-slate-200 p-1 py-1 text-center absolute bottom-0 width-full'>
+                                Upload photo
+                            </div>
+                        </form>
                     </div>
                     <form className='pt-6' onSubmit={handleSubmit}>
                         <div className='grid'>
@@ -47,7 +76,7 @@ const Login = () => {
                                     placeholder='Enter email'
                                     name="email"
                                     value={data.email}
-                                    onChange={handleonChange}
+                                    onChange={handleOnChange}
                                     className='w-full outline-none bg-transparent' />
                             </div>
                         </div>
@@ -60,7 +89,7 @@ const Login = () => {
                                     placeholder='Enter password'
                                     name="password"
                                     value={data.password}
-                                    onChange={handleonChange}
+                                    onChange={handleOnChange}
                                     className='w-full outline-none bg-transparent' />
                                 <div className='cursor-pointer tx-xl' onClick={() => setShowPassword((prev) => !prev)}>
                                     <span>
@@ -83,6 +112,7 @@ const Login = () => {
             </div>
         </section>
     );
-}
+};
 
 export default Login;
+
