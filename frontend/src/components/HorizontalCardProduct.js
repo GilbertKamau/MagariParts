@@ -7,7 +7,7 @@ import addToCart from '../helpers/addToCart'
 import Context from '../context'
 
 const HorizontalCardProduct = ({category, heading}) => {
-    const [data,setData] = useState([])
+    const [data,setData] = useState([]) 
     const [loading,setLoading] = useState(true)
     const loadingList = new Array(13).fill(null)
 
